@@ -28,6 +28,11 @@ io.on("connection", async (socket) => {
         console.log(socket.rooms)
     });
 
+    socket.on("DISCONNECTION_ROOM", async (roomId) => {
+      socket.leave(roomId)
+      console.log(socket.rooms)
+    });
+
     socket.on("disconnect", async () => {
       console.log("disconnect")
     });
