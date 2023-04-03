@@ -1,7 +1,8 @@
 const express = require("express");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
-const authMiddleware = require('./auth.io.middleware')
+const authMiddleware = require('./middleware/auth.io.middleware')
+const client = require('../Backend/clientDb')
 
 const app = express();
 const httpServer = createServer(app);
@@ -13,20 +14,27 @@ io.use(authMiddleware)
 
 io.on("connection", async (socket) => {
 
-    console.log(socket.id)
-    socket.on("PRIVATE_MESSAGE", ({ text, user_id, to }) => {
+    //console.log(socket.rooms)
+    socket.on("PRIVATE_MESSAGE", async ({ content, creator_message_id, chat_room_id }) => {
         const message = {
-          text,
-          fromUserid: user_id,
-          fromSocket: socket.id,
-          to,
+          chat_room_id: chat_room_id,
+          creator_message_id: creator_message_id,
+          content: content,
+          date_of_creation: new Date(),
         };
         console.log(message)
-        socket.to(to).to(socket.id).emit("PRIVATE_MESSAGE", message);
+        await client.message.create({
+          data: {
+            ...message
+          }
+        })
+        console.log(message)
+        socket.to(chat_room_id).to(socket.id).emit("PRIVATE_MESSAGE", message);
     });
 
-    socket.on("JOIN_ROOM", (roomId) => {
-      console.log("JOIN: ", roomId)
+    socket.on("JOIN_ROOM", async (roomId) => {
+        console.log("JOIN: ", roomId)
+
         socket.join(roomId)
         console.log(socket.rooms)
     });
