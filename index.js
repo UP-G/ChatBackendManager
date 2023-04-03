@@ -17,9 +17,9 @@ io.on("connection", async (socket) => {
     //console.log(socket.rooms)
     socket.on("PRIVATE_MESSAGE", async ({ content, creator_message_id, chat_room_id }) => {
         const message = {
-          chat_room_id: chat_room_id,
-          creator_message_id: creator_message_id,
-          content: content,
+          chat_room_id,
+          creator_message_id,
+          content,
           date_of_creation: new Date(),
         };
         console.log(message)
